@@ -4,7 +4,7 @@
 
 const cheerio = require('cheerio-without-node-native');
 const urlObj = require('url');
-const { fetch } = require('cross-fetch');
+// const { fetch } = require('cross-fetch');
 
 const { REGEX_VALID_URL } = require('./constants');
 
@@ -25,24 +25,24 @@ exports.getPreview = function (text, options) {
 		});
 
 		if (detectedUrl) {
+			console.log('Before Fetching: ', detectedUrl);
 			fetch(detectedUrl)
 				.then(response => {
-					console.log('Response: ', response);
+
 					const contentType = response.headers.get("Content-Type");
+					console.log('Response: ', response, contentType);
 					if (contentType.startsWith('image')) {
-						return Promise.resolve({ image: true, url: detectedUrl });
+						return Promise.resolve({ image: true, images: [detectedUrl] })
 					} else {
 						return response.text()
 					}
 
+
 				})
 				.then(text => {
 					console.log('response text', text);
-					if (text.url) {
-						resolve({
-							image: true,
-							url: text.url
-						})
+					if (text.image) {
+						resolve(text)
 					} else {
 						resolve(parseResponse(text, detectedUrl, options || {}));
 					}
@@ -207,4 +207,5 @@ const getVideos = function (doc) {
 //     return createResponseData(url, false, '', '', contentType);
 //   }
 // }
+
 
